@@ -9,6 +9,7 @@ This repository now includes the **Week 1 data pipeline foundation** from the pr
 - Historical market data downloader.
 - Multi-provider support (`yahoo`, `stooq`) with provider fallback.
 - File-based cache for repeatable and faster runs.
+- Polling-based live stream layer built on top of the downloader.
 - Shared domain models (`Instrument`, `MarketDataSnapshot`) to be reused by pair-identification, signal, risk, and backtest modules.
 
 ## Project structure
@@ -19,6 +20,7 @@ src/
     data/
       cache.py            # Disk cache abstraction
       downloader.py       # Orchestrates providers + caching
+      streaming.py        # Polling-based live stream API
       models.py           # Shared data contracts
       providers/
         base.py           # Provider interface
@@ -95,6 +97,36 @@ snapshot = downloader.fetch(
 )
 ```
 
+### 4) Live data stream (polling)
+
+```python
+from datetime import timedelta
+
+from pairs_trading.data import Instrument, LiveDataStreamer
+
+streamer = LiveDataStreamer()
+
+for event in streamer.stream(
+  instrument=Instrument(symbol="MSFT"),
+  interval="1m",
+  lookback=timedelta(days=2),
+  poll_seconds=20,
+  provider_preference=["yahoo", "stooq"],
+  max_polls=10,
+):
+  if event.new_rows.empty:
+    print(f"[{event.polled_at.isoformat()}] No new rows")
+    continue
+
+  print(f"[{event.polled_at.isoformat()}] New rows: {len(event.new_rows)}")
+  print(event.new_rows.tail(1))
+```
+
+Live stream behavior:
+- The streamer uses `force_refresh=True` internally, so each poll calls provider APIs.
+- Even in live mode, successful API responses are still written into cache by `DataDownloader`.
+- `event.new_rows` contains only unseen rows since the previous poll.
+
 ## Caching behavior
 
 - Cache directory: `.cache/market_data/`
@@ -104,6 +136,24 @@ snapshot = downloader.fetch(
   - `<key>.meta.json` (request metadata)
 
 `.cache/` is already ignored by git.
+
+## Data pipeline and cache flow
+
+`DataDownloader.fetch(...)` follows this pipeline:
+
+1. Build ordered provider list.
+2. For each provider, build deterministic cache key from request params.
+3. If `force_refresh=False`, try cache lookup first.
+4. If cache hit: return cached snapshot immediately (`from_cache=True`), no API call.
+5. If cache miss (or `force_refresh=True`): call provider API.
+6. On successful API response: write payload + metadata to cache.
+7. Return fresh snapshot (`from_cache=False`).
+8. If provider fails, try next provider in preference order.
+9. If all providers fail, raise error with provider-specific messages.
+
+Decision summary:
+- Historical/research workloads: default `force_refresh=False` to maximize cache reuse.
+- Latency-sensitive/live workloads: `force_refresh=True` to avoid stale reads.
 
 ## Notes for future modules
 
