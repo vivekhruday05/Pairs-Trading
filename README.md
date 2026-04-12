@@ -12,6 +12,12 @@ This repository now includes the **Week 1 data pipeline foundation** from the pr
 - Polling-based live stream layer built on top of the downloader.
 - Shared domain models (`Instrument`, `MarketDataSnapshot`) to be reused by pair-identification, signal, risk, and backtest modules.
 
+It also now includes the **pair identification engine** from the proposal:
+
+- Correlation-based pair screening (baseline).
+- Cointegration testing using Engle-Granger (`coint`) and ADF on spread residuals.
+- Causal-relationship analysis using Granger causality tests.
+
 ## Project structure
 
 ```text
@@ -26,6 +32,9 @@ src/
         base.py           # Provider interface
         yahoo.py          # Yahoo Finance adapter (yfinance)
         stooq.py          # Stooq CSV adapter
+    pair_identification/
+      engine.py           # Pair screening + statistical test pipeline
+      models.py           # Result contracts for pair analysis
 ```
 
 ## Installation
@@ -35,6 +44,8 @@ From repository root:
 ```bash
 pip install -r requirements.txt
 ```
+
+The pair engine depends on `statsmodels` (already included in `requirements.txt`).
 
 If you run scripts from the project root, set:
 
@@ -122,6 +133,38 @@ for event in streamer.stream(
   print(event.new_rows.tail(1))
 ```
 
+### 5) Identify candidate pairs
+
+```python
+from datetime import datetime
+
+from pairs_trading.data import Instrument
+from pairs_trading.pair_identification import PairIdentificationEngine
+
+engine = PairIdentificationEngine()
+
+instruments = [
+    Instrument(symbol="MSFT"),
+    Instrument(symbol="AAPL"),
+    Instrument(symbol="GOOGL"),
+    Instrument(symbol="AMZN"),
+]
+
+report = engine.identify_pairs(
+    instruments=instruments,
+    start=datetime(2020, 1, 1),
+    end=datetime(2024, 1, 1),
+    interval="1d",
+    provider_preference=["yahoo", "stooq"],
+    min_correlation=0.75,
+    min_observations=200,
+    granger_max_lag=5,
+)
+
+print("Correlation candidates:", len(report.correlation_candidates))
+print(report.to_frame().head(10))
+```
+
 Live stream behavior:
 - The streamer uses `force_refresh=True` internally, so each poll calls provider APIs.
 - Even in live mode, successful API responses are still written into cache by `DataDownloader`.
@@ -154,6 +197,85 @@ Live stream behavior:
 Decision summary:
 - Historical/research workloads: default `force_refresh=False` to maximize cache reuse.
 - Latency-sensitive/live workloads: `force_refresh=True` to avoid stale reads.
+
+## Pair identification pipeline
+
+`PairIdentificationEngine.identify_pairs(...)` follows this flow:
+
+1. Fetch aligned price history for each `Instrument` through `DataDownloader`.
+2. Build a shared price matrix indexed by timestamp.
+3. Run correlation screening and keep pairs above `min_correlation`.
+4. For each candidate pair, run Engle-Granger cointegration (`coint`).
+5. Run ADF on OLS spread residuals to confirm mean-reversion tendency.
+6. Run Granger causality in both directions up to `granger_max_lag`.
+7. Return a `PairIdentificationReport` with pair-level statistics and a `to_frame()` helper.
+
+## How to run pair identification
+
+From repository root:
+
+```bash
+export PYTHONPATH=src
+python - <<'PY'
+from datetime import datetime
+
+from pairs_trading.data import Instrument
+from pairs_trading.pair_identification import PairIdentificationEngine
+
+engine = PairIdentificationEngine()
+report = engine.identify_pairs(
+  instruments=[
+    Instrument(symbol="MSFT"),
+    Instrument(symbol="AAPL"),
+    Instrument(symbol="GOOGL"),
+    Instrument(symbol="AMZN"),
+  ],
+  start=datetime(2020, 1, 1),
+  end=datetime(2024, 1, 1),
+  interval="1d",
+  provider_preference=["yahoo", "stooq"],
+  min_correlation=0.75,
+  min_observations=200,
+  granger_max_lag=5,
+)
+
+print(report.to_frame().head(10))
+PY
+```
+
+Tips:
+- Increase `min_observations` for more stable statistical tests.
+- Use higher `min_correlation` to reduce candidate count before expensive tests.
+- Keep strategy modules decoupled by consuming this engine through `DataDownloader` only.
+
+## Example script: 10 instruments end-to-end
+
+An executable example is included at `examples/run_pair_identification.py`.
+It performs both phases:
+
+- Data download for 10 instruments using `DataDownloader.fetch_many(...)`.
+- Pair identification using correlation screening, Engle-Granger + ADF, and Granger causality.
+
+Run from repository root:
+
+```bash
+export PYTHONPATH=src
+python examples/run_pair_identification.py
+```
+
+Optional arguments:
+
+```bash
+export PYTHONPATH=src
+python examples/run_pair_identification.py \
+  --start 2019-01-01 \
+  --end 2024-12-31 \
+  --min-correlation 0.8 \
+  --min-observations 250 \
+  --granger-max-lag 6 \
+  --top 25 \
+  --output outputs/pairs_top_table.csv
+```
 
 ## Notes for future modules
 
