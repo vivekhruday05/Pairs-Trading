@@ -1,3 +1,20 @@
 .vscode/
 .cache/
 __pycache__/
+
+# Python
+*.py[cod]
+*$py.class
+venv/
+env/
+myenv/
+.env
+
+# Node & Frontend
+node_modules/
+frontend/dist/
+frontend/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store

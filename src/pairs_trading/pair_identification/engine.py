@@ -7,6 +7,7 @@ from typing import Iterable
 import warnings
 
 import pandas as pd
+import numpy as np
 
 from pairs_trading.data import DataDownloader, Instrument
 
@@ -188,6 +189,17 @@ class PairIdentificationEngine:
             autolag="AIC",
         )
 
+        # Calculate half-life of mean reversion
+        delta_resid = residuals.diff().dropna()
+        prev_resid = residuals.shift().dropna()
+        lambda_result = sm_api.OLS(delta_resid, prev_resid).fit()
+        lambda_coeff = lambda_result.params.iloc[0]
+        
+        if lambda_coeff < 0:
+            half_life = -np.log(2) / lambda_coeff
+        else:
+            half_life = None
+
         granger_xy = self._granger_min_pvalue(
             pair=pair,
             target=symbol_y,
@@ -206,6 +218,7 @@ class PairIdentificationEngine:
             symbol_y=symbol_y,
             observations=len(pair),
             correlation=correlation,
+            half_life=half_life if half_life is not None else float('nan'),
             engle_granger_stat=float(coint_stat),
             engle_granger_pvalue=float(coint_pvalue),
             adf_stat=float(adf_stat),

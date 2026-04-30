@@ -23,6 +23,7 @@ class PairAnalysisResult:
     symbol_y: str
     observations: int
     correlation: float
+    half_life: float | None
     engle_granger_stat: float
     engle_granger_pvalue: float
     adf_stat: float
@@ -59,6 +60,7 @@ class PairIdentificationReport:
                     "symbol_y": row.symbol_y,
                     "observations": row.observations,
                     "correlation": row.correlation,
+                    "half_life": row.half_life,
                     "engle_granger_stat": row.engle_granger_stat,
                     "engle_granger_pvalue": row.engle_granger_pvalue,
                     "adf_stat": row.adf_stat,
@@ -76,6 +78,7 @@ class PairIdentificationReport:
                     "symbol_y",
                     "observations",
                     "correlation",
+                    "half_life",
                     "engle_granger_stat",
                     "engle_granger_pvalue",
                     "adf_stat",
