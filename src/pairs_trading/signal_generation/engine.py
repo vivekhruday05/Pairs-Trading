@@ -158,6 +158,7 @@ class PairSignalEngine:
         position = raw_signal.astype(float)
 
         position_scale = inverse_vol_scale.fillna(0)
+        position_scale = position_scale.clip(upper=parameters.max_gross_exposure)
         normalized_scale = position_scale / (1.0 + hedge_ratio.__abs__())
 
         weight_y = position * normalized_scale

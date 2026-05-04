@@ -14,6 +14,7 @@ class SignalParameters:
     entry_threshold: float = 2.0
     exit_threshold: float = 0.5
     target_gross_exposure: float = 1.0
+    max_gross_exposure: float = 2.0
     minimum_volatility: float = 1e-8
 
 

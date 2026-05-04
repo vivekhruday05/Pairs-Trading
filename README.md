@@ -76,6 +76,27 @@ To stop the terminal safely:
 - `/docs/`: Architectural documentation and mathematical proofs.
 - `/examples/`: Example scripts demonstrating engine usage in raw Python.
 
+## Testing & Evaluation
+
+This project includes invariant tests to ensure leverage limits and weight balancing are maintained, as well as a comparative experiment script that validates causal-based pair selection against correlation-based selection out-of-sample.
+
+1. **Run Invariant Tests:**
+   ```bash
+   conda run -n myenv env PYTHONPATH=src python -m unittest discover tests/
+   ```
+
+2. **Run Comparative Experiment:**
+   ```bash
+   conda run -n myenv env PYTHONPATH=src python examples/comparative_experiment.py
+   ```
+   *This will output PnL visualizations to `docs/report/figures/`.*
+
+3. **Integrated Demo Notebook:**
+   You can view or run the end-to-end integration demo notebook located at `examples/Integrated_Demo.ipynb`.
+
+4. **Evaluation Report:**
+   The final evaluation report documenting insights from the causal vs. correlation study is available in `docs/report/report.tex`.
+
 ## License
 
 MIT License

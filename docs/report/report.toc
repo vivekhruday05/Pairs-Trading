@@ -1,0 +1,29 @@
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {section}{\numberline {2}Mathematical Foundations of Pairs Trading}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Stochastic Processes and Asset Pricing}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Cointegration and the Engle-Granger Method}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Modeling the Spread as an Ornstein-Uhlenbeck Process}{5}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Causality vs. Correlation}{6}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Signal Generation and Risk Management}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Dynamic Z-Score Signals}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Inverse Volatility Position Sizing}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Risk Management Overlays}{7}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Software Architecture and Implementation}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Data Ingestion: \texttt {DataDownloader}}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Pair Identification: \texttt {PairIdentificationEngine}}{8}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Signal Generation: \texttt {PairSignalEngine}}{8}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Risk Management: \texttt {PairRiskEngine}}{8}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Backtesting Execution: \texttt {PairBacktestEngine}}{8}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Experimental Design and Empirical Results}{9}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Data and Environment}{9}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Pair Selection Results}{9}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Overall Performance Comparison}{9}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Detailed Visual Analysis}{10}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Extended Theoretical Framework and Future Optimization}{15}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Maximum Likelihood Estimation of the OU Process}{15}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Future Extension: Optimal Position Sizing via the Kelly Criterion}{16}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Future Extension: Non-linear Transaction Cost Modeling}{16}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Extended Visualization Analysis}{17}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Structural Break Detection}{17}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Exposure Utilization and Risk Capital Allocation}{17}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Conclusion and Future Work}{17}{section.8}%
