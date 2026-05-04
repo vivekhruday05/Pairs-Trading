@@ -96,7 +96,3 @@ This project includes invariant tests to ensure leverage limits and weight balan
 
 4. **Evaluation Report:**
    The final evaluation report documenting insights from the causal vs. correlation study is available in `docs/report/report.tex`.
-
-## License
-
-MIT License
