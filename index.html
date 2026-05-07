@@ -59,12 +59,14 @@
     inset: 0;
     display: flex;
     flex-direction: column;
-    padding: 48px 64px;
+    padding: 40px clamp(20px, 4vw, 64px) 96px;
     opacity: 0;
     transform: translateY(24px);
     transition: opacity 0.6s ease, transform 0.6s ease;
     pointer-events: none;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .slide.active {
@@ -85,6 +87,7 @@
     align-items: baseline;
     gap: 20px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
   }
 
   .slide-num {
@@ -101,6 +104,7 @@
     color: var(--muted);
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    overflow-wrap: anywhere;
   }
 
   .rule-top {
@@ -164,16 +168,21 @@
   /* Two-column layout */
   .cols-2 {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 40px;
     flex: 1;
   }
 
   .cols-3 {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
     flex: 1;
+  }
+
+  .cols-2 > *,
+  .cols-3 > * {
+    min-width: 0;
   }
 
   /* Formula box */
@@ -188,6 +197,7 @@
     font-size: clamp(12px, 1.2vw, 15px);
     color: var(--accent-blue);
     line-height: 1.8;
+    overflow-wrap: anywhere;
   }
 
   /* Card */
@@ -212,6 +222,7 @@
     font-size: clamp(12px, 1.1vw, 14px);
     line-height: 1.65;
     color: var(--ink-soft);
+    overflow-wrap: anywhere;
   }
 
   /* Metric badge */
@@ -285,6 +296,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: clamp(11px, 1.1vw, 14px);
+    table-layout: fixed;
   }
 
   .data-table th {
@@ -303,6 +315,7 @@
     border-bottom: 1px solid var(--rule);
     color: var(--ink-soft);
     vertical-align: middle;
+    overflow-wrap: anywhere;
   }
 
   .data-table tr:last-child td { border-bottom: none; }
@@ -327,6 +340,7 @@
     line-height: 1.65;
     color: var(--ink-soft);
     font-style: italic;
+    overflow-wrap: anywhere;
   }
 
   .callout strong { color: var(--gold); font-style: normal; }
@@ -461,7 +475,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
   }
 
   .flex-row { display: flex; gap: 24px; }
@@ -538,6 +554,39 @@
     font-size: clamp(11px, 1.05vw, 13px);
     line-height: 1.6;
     color: var(--ink-soft);
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 1200px) {
+    .cols-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 960px) {
+    .cols-2,
+    .cols-3 {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .flex-row {
+      flex-direction: column;
+    }
+
+    .vr {
+      display: none;
+    }
+
+    #nav {
+      right: 16px;
+      bottom: 12px;
+    }
+
+    #kbd-hint {
+      left: 16px;
+      bottom: 12px;
+    }
   }
 
   /* SVG chart styles */
